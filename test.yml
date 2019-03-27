@@ -1,0 +1,24 @@
+---
+
+- name: test contivity 
+  hosts: arista
+  gather_facts: no
+
+  tasks:
+    - name: setCreds
+      eos_config:
+        provider: "{{ essh }}"
+        lines:
+          - aaa authorization exec default local
+          - username admin privilege 15
+          - "username admin sshkey {{ pubKeyArista }}"
+      tags: rsaKey
+
+    - name: setEapi
+      eos_config:
+        provider: "{{ essh }}"
+        lines:
+          - protocol http
+          - no shutdown
+        parents: management api http-commands
+      tags: eapi

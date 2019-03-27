@@ -1,0 +1,18 @@
+---
+
+- name: lesson 4.1
+  hosts: pe_routers 
+
+
+  tasks:
+    - name: get info
+      eos_facts:
+        provider: "{{ eapi }}"
+      register: get_facts
+      tags: facts
+
+    - name: setbgp
+      eos_config:
+        provider: "{{ eapi }}"
+        src: /root/ansible_projects/mpls_gns/group_vars/arista/bgpCePeTemplate.j2 
+      tags: bgp

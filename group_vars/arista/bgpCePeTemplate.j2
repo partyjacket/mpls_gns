@@ -1,0 +1,54 @@
+{% set inv = inventory_hostname %}
+{% set inv_int = inv[-1] %}
+{% set lb = baseLoopback %}
+
+{% if inv[0:2] == "pe" %}
+router bgp {{ inv_int }}00
+   router-id {{ lb }}5{{ inv_int }}
+   neighbor CE-PE_PEER peer-group
+   neighbor CE-PE_PEER remote-as 65001
+   neighbor CE-PE_PEER update-source Ethernet6
+   neighbor CE-PE_PEER maximum-routes 12000 
+   neighbor CE-PE_PEER remote-as 65001
+   neighbor MPLS_BGP_PEER peer-group
+   neighbor MPLS_BGP_PEER update-source Loopback0
+   neighbor MPLS_BGP_PEER ebgp-multihop 6
+   neighbor MPLS_BGP_PEER send-community extended
+   neighbor MPLS_BGP_PEER maximum-routes 12000
+
+{% if inv_int == "1" %} 
+   neighbor {{ lb }}52 peer-group MPLS_BGP_PEER
+   neighbor {{ lb }}52 remote-as 200
+   neighbor {{ lb }}53 peer-group MPLS_BGP_PEER
+   neighbor {{ lb }}53 remote-as 300
+{% endif %}
+
+{% if inv_int == "2" %} 
+   neighbor {{ lb }}51 peer-group MPLS_BGP_PEER
+   neighbor {{ lb }}51 remote-as 100
+   neighbor {{ lb }}53 peer-group MPLS_BGP_PEER
+   neighbor {{ lb }}53 remote-as 300
+{% endif %}
+
+{% if inv_int == "3" %} 
+   neighbor {{ lb }}51 peer-group MPLS_BGP_PEER
+   neighbor {{ lb }}51 remote-as 100
+   neighbor {{ lb }}52 peer-group MPLS_BGP_PEER
+   neighbor {{ lb }}52 remote-as 200
+{% endif %}
+
+
+   address-family vpn-ipv4
+      neighbor MPLS_BGP_PEER activate
+
+   vrf 100
+      rd {{ lb }}5{{ inv_int }}:100
+      route-target import vpn-ipv4 100:0
+      route-target export vpn-ipv4 100:0
+      neighbor 10.100.10{{ inv_int }}.2 peer-group CE-PE_PEER
+      redistribute connected
+      redistribute static 
+neighbor 10.100.10{{ inv_int }}.2 peer-group CE-PE_PEER
+{% endif %}
+
+

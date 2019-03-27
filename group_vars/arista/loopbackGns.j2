@@ -1,0 +1,15 @@
+{% set inv = inventory_hostname %}
+
+{% if inventory_hostname[0:2] == "pe" %}
+interface Loopback0
+   ip address {{ baseLoopback }}5{{inv[-1]}}/32
+
+{% elif inventory_hostname[0:2] == "ce" %}
+interface Loopback0
+   ip address {{ baseLoopback }}6{{inv[-1]}}/32
+
+{% elif inventory_hostname[0] == "p" and inv[-1]|int %}
+interface Loopback0
+   ip address {{ baseLoopback }}4{{inv[-1]}}/32
+
+{% endif %}

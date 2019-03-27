@@ -1,0 +1,16 @@
+---
+
+essh:
+  username: admin
+  password: admin
+  transport: cli
+  host: "{{ ansible_host }}"
+  authorize: yes
+
+eapi:
+  username: "{{ username }}"
+  password: "{{ password }}"
+  transport: eapi
+  use_ssl: True
+  validate_certs: False
+  host: "{{ ansible_host }}"
