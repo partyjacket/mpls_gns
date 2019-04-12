@@ -1,7 +1,7 @@
 ---
 
 - name: lesson 4.1
-  hosts: pe_routers:ce_routers 
+  hosts: pe1 
 
 
   tasks:
@@ -11,8 +11,18 @@
       register: get_facts
       tags: facts
 
+    - name: testbgp
+      eos_config:
+        lines:
+          - router bgp 100
+        provider: "{{ eapi }}"
+        parents: "router bgp {{ ansible_hostname[-1] }}00" 
+        before: no router bgp
+      notify: setbgp
+      tags: bgp
+
+  handlers:
     - name: setbgp
       eos_config:
         provider: "{{ eapi }}"
         src: /root/ansible_projects/mpls_gns/group_vars/arista/bgpCePeTemplate.j2 
-      tags: bgp

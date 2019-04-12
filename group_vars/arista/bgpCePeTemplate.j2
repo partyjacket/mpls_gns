@@ -10,6 +10,7 @@ router bgp {{ inv_int }}00
    neighbor CE-PE_PEER update-source Ethernet6
    neighbor CE-PE_PEER maximum-routes 12000 
    neighbor CE-PE_PEER remote-as 65001
+   neighbor CE-PE_PEER default-originate always 
    neighbor MPLS_BGP_PEER peer-group
    neighbor MPLS_BGP_PEER update-source Loopback0
    neighbor MPLS_BGP_PEER ebgp-multihop 6
@@ -48,7 +49,23 @@ router bgp {{ inv_int }}00
       neighbor 10.100.10{{ inv_int }}.2 peer-group CE-PE_PEER
       redistribute connected
       redistribute static 
-neighbor 10.100.10{{ inv_int }}.2 peer-group CE-PE_PEER
+
+{% elif inv[0:2] == "ce" %}
+ip prefix-list local_nets
+   seq 10 permit 10.200.0.0/16 ge 16
+
+route-map local_nets permit 10
+   match ip address prefix-list local_nets
+
+router bgp 65001
+   router-id {{ lb }}6{{inv_int}}
+   neighbor CE-CE_IBGP-PEER peer-group
+   neighbor CE-CE_IBGP-PEER remote-as 65001
+   neighbor CE-CE_IBGP-PEER maximum-routes 12000 
+   neighbor CE-PE_PEER peer-group
+   neighbor CE-PE_PEER remote-as {{ inv_int }}00
+   neighbor CE-PE_PEER update-source Ethernet6
+   neighbor CE-PE_PEER maximum-routes 12000 
+   neighbor 10.100.10{{ inv_int }}.1 peer-group CE-PE_PEER
+   redistribute connected route-map local_nets
 {% endif %}
-
-
